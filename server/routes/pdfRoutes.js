@@ -27,10 +27,10 @@ const upload = multer({
 
 router.post('/upload', upload.single('pdf'), async (req, res) => {
   try {
-    const { branch } = req.body;
+    const { branch, subject } = req.body;
 
-    if (!req.file || !branch) {
-      return res.status(400).json({ message: 'PDF and branch are required.' });
+    if (!req.file || !branch || !subject) {
+      return res.status(400).json({ message: 'PDF, branch and Subject are required.' });
     }
 
     const streamUpload = (buffer) => {
@@ -51,7 +51,8 @@ router.post('/upload', upload.single('pdf'), async (req, res) => {
     const pdf = new Pdf({
       filename: req.file.originalname,
       cloudinaryUrl: result.secure_url,
-      branch
+      branch,
+      subject
     });
 
     await pdf.save();

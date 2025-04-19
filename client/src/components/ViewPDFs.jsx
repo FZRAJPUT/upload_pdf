@@ -1,4 +1,3 @@
-// ViewPDFs.jsx
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './ViewPDFs.css';
@@ -6,8 +5,8 @@ import './ViewPDFs.css';
 export default function ViewPDFs() {
   const [files, setFiles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
   const [selectedBranch, setSelectedBranch] = useState('All');
+  const [selectedSubject, setSelectedSubject] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
 
   const getFiles = async () => {
@@ -16,13 +15,10 @@ export default function ViewPDFs() {
       const response = await axios.get('http://localhost:5000/files');
       if (Array.isArray(response.data)) {
         setFiles(response.data);
-        setError(null);
       } else {
-        setError('Expected an array but got different data structure');
         console.error('Expected an array but got:', response.data);
       }
     } catch (error) {
-      setError('Failed to load files. Please try again later.');
       console.error('Error fetching files:', error);
     } finally {
       setLoading(false);
@@ -47,11 +43,13 @@ export default function ViewPDFs() {
   };
 
   const branches = ['All', ...new Set(files.map(file => file.branch))];
+  const subjects = ['All', ...new Set(files.map(file => file.subject).filter(Boolean))];
 
   const filteredFiles = files.filter(file => {
     const branchMatch = selectedBranch === 'All' || file.branch === selectedBranch;
+    const subjectMatch = selectedSubject === 'All' || file.subject === selectedSubject;
     const searchMatch = file.filename.toLowerCase().includes(searchTerm.toLowerCase());
-    return branchMatch && searchMatch;
+    return branchMatch && subjectMatch && searchMatch;
   });
 
   const formatDate = (dateString) => {
@@ -92,6 +90,16 @@ export default function ViewPDFs() {
               <option key={branch} value={branch}>{branch}</option>
             ))}
           </select>
+
+          <select 
+            value={selectedSubject} 
+            onChange={(e) => setSelectedSubject(e.target.value)}
+            className="branch-filter"
+          >
+            {subjects.map(subject => (
+              <option key={subject} value={subject}>{subject}</option>
+            ))}
+          </select>
         </div>
       </div>
 
@@ -104,7 +112,7 @@ export default function ViewPDFs() {
         <div className="empty-state">
           <h3>No documents found</h3>
           <p>
-            {searchTerm || selectedBranch !== 'All' 
+            {searchTerm || selectedBranch !== 'All' || selectedSubject !== 'All'
               ? 'Try changing your search or filter criteria' 
               : 'No PDFs are currently available for download'}
           </p>
@@ -123,9 +131,8 @@ export default function ViewPDFs() {
               
               <div className="pdf-card-content">
                 <h3 className="pdf-title">{file.filename}</h3>
-                <p className="pdf-date">
-                  {formatDate(file.uploadedAt || file.updatedAt)}
-                </p>
+                <p className="pdf-date">{formatDate(file.uploadedAt || file.updatedAt)}</p>
+                <p className="pdf-date">{file.subject}</p>
               </div>
               
               <div className="pdf-card-footer">

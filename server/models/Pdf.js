@@ -5,8 +5,14 @@ const pdfSchema = new mongoose.Schema({
   cloudinaryUrl: String,
   branch: {
     type: String,
-    enum: ['CSE', 'ME', 'CE', 'EE'], // Add more as needed
+    enum: ['CSE', 'ME', 'CE', 'EE'], // Add more branches as needed
     required: true
+  },
+  subject: {
+    type: String,
+    required: true
+    // Optionally, you can use enum here to validate allowed subjects:
+    // enum: ['Data Structures', 'Thermodynamics', 'Control Systems', ...]
   },
   uploadedAt: {
     type: Date,
