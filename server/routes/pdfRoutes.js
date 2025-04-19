@@ -32,7 +32,6 @@ router.post('/upload', upload.single('pdf'), async (req, res) => {
     if (!req.file || !branch || !subject) {
       return res.status(400).json({ message: 'PDF, branch and Subject are required.' });
     }
-
     const streamUpload = (buffer) => {
       return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
@@ -81,11 +80,9 @@ router.delete('/files/:id', async (req, res) => {
   try {
     const file = await Pdf.findById(req.params.id);
     if (!file) return res.status(404).json({ message: 'File not found' });
-
     // Delete from Cloudinary using public_id
     const publicId = file.cloudinaryUrl.split('/').pop().split('.')[0]; // extract from URL
     await cloudinary.uploader.destroy(publicId, { resource_type: 'raw' });
-
     await file.deleteOne();
     res.json({ message: 'File deleted successfully' });
   } catch (error) {
