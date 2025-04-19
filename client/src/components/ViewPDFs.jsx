@@ -65,7 +65,7 @@ export default function ViewPDFs() {
   return (
     <div className="pdf-viewer-container">
       <div className="pdf-viewer-header">
-        <h1>PDF Document Library</h1>
+        <h1>ExamVault Admin</h1>
         <p>Access and manage department documents</p>
       </div>
 
