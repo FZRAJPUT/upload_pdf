@@ -45,7 +45,7 @@
   .drop-area {
     border: 2px dashed #d1d5db;
     border-radius: 12px;
-    padding: 40px 20px;
+    padding: 20px 10px;
     text-align: center;
     margin-bottom: 25px;
     transition: all 0.3s ease;
@@ -77,52 +77,6 @@
     font-size: 14px;
   }
   
-  .upload-icon {
-    width: 60px;
-    height: 60px;
-    margin: 0 auto 15px;
-    border-radius: 50%;
-    background-color: rgba(74, 108, 247, 0.1);
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    position: relative;
-  }
-  
-  .upload-arrow {
-    width: 20px;
-    height: 25px;
-    border-left: 3px solid #4a6cf7;
-    border-bottom: 3px solid #4a6cf7;
-    border-right: 3px solid #4a6cf7;
-    position: relative;
-  }
-  
-  .upload-arrow:before {
-    content: '';
-    position: absolute;
-    top: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 3px;
-    height: 15px;
-    background-color: #4a6cf7;
-  }
-  
-  .upload-arrow:after {
-    content: '';
-    position: absolute;
-    top: -15px;
-    left: 50%;
-    transform: translateX(-50%);
-    width: 0;
-    height: 0;
-    border-left: 8px solid transparent;
-    border-right: 8px solid transparent;
-    border-bottom: 8px solid #4a6cf7;
-    margin-top: -8px;
-  }
-  
   .file-input {
     position: absolute;
     width: 0.1px;
@@ -152,7 +106,7 @@
     align-items: center;
     justify-content: space-between;
     margin-top: 15px;
-    padding: 10px 15px;
+    padding: 5px 8px;
     background-color: white;
     border-radius: 8px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);

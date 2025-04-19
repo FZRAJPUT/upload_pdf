@@ -84,9 +84,6 @@ export default function PdfManager() {
             onDragLeave={handleDragLeave}
             onDrop={handleDrop}
           >
-            <div className="upload-icon">
-              <div className="upload-arrow"></div>
-            </div>
             <p>{file ? file.name : 'Drag & Drop your PDF here'}</p>
             <span>or</span>
             <label className="file-input-label">
