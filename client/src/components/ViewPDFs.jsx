@@ -8,18 +8,21 @@ export default function ViewPDFs() {
   const [selectedBranch, setSelectedBranch] = useState('All');
   const [selectedSubject, setSelectedSubject] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
+  const [previewUrl, setPreviewUrl] = useState(null);
 
   const getFiles = async () => {
     try {
       setLoading(true);
       const response = await axios.get('http://localhost:5000/files');
-      if (Array.isArray(response.data)) {
-        setFiles(response.data);
+      if (response.data && response.data.files && Array.isArray(response.data.files)) {
+        setFiles(response.data.files);
       } else {
-        console.error('Expected an array but got:', response.data);
+        console.error('Expected files array in response but got:', response.data);
+        setFiles([]);
       }
     } catch (error) {
       console.error('Error fetching files:', error);
+      setFiles([]);
     } finally {
       setLoading(false);
     }
@@ -60,6 +63,32 @@ export default function ViewPDFs() {
       month: 'short', 
       day: 'numeric' 
     });
+  };
+
+  const handlePreview = (url) => {
+    setPreviewUrl(url);
+  };
+
+  const closePreview = () => {
+    setPreviewUrl(null);
+  };
+
+  const handleDownload = async (url, filename) => {
+    try {
+      const response = await fetch(url);
+      const blob = await response.blob();
+      const downloadUrl = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = downloadUrl;
+      link.download = `${filename}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(downloadUrl);
+    } catch (error) {
+      console.error('Download error:', error);
+      alert('Failed to download the file.');
+    }
   };
 
   return (
@@ -132,27 +161,18 @@ export default function ViewPDFs() {
               <div className="pdf-card-content">
                 <h3 className="pdf-title">{file.filename}</h3>
                 <p className="pdf-date">{formatDate(file.uploadedAt || file.updatedAt)}</p>
-                <p className="pdf-date">{file.subject}</p>
+                <p className="pdf-subject">{file.subject}</p>
+                <p className="pdf-type">{file.type || 'Document'}</p>
               </div>
               
               <div className="pdf-card-footer">
-                <a
-                  href={file.cloudinaryUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  download={file.filename}
+                <button
+                  onClick={() => handleDownload(file.cloudinaryUrl, file.filename)}
                   className="download-button"
                 >
                   Download
-                </a>
-                <a
-                  href={file.cloudinaryUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="view-button"
-                >
-                  View
-                </a>
+                </button>
+                
                 <button 
                   onClick={() => handleDelete(file._id)} 
                   className="delete-button"

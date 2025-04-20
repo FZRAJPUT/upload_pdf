@@ -6,10 +6,10 @@ export default function PdfManager() {
   const [file, setFile] = useState(null);
   const [branch, setBranch] = useState('');
   const [subject, setSubject] = useState('');
+  const [type, setType] = useState(''); // ✅ New state for type
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
 
-  // All available subjects
   const allSubjects = [
     'Data Structures', 'Algorithms', 'Database Management Systems',
     'Operating Systems', 'Computer Networks', 'Discrete Mathematics',
@@ -23,13 +23,16 @@ export default function PdfManager() {
 
   const handleUpload = async (e) => {
     e.preventDefault();
-    if (!file || !branch || !subject) return alert('Select a file, branch, and subject.');
+    if (!file || !branch || !subject || !type) {
+      return alert('Please select file, branch, subject, and type.');
+    }
 
     setIsUploading(true);
     const formData = new FormData();
     formData.append('pdf', file);
     formData.append('branch', branch);
     formData.append('subject', subject);
+    formData.append('type', type); // ✅ Add type
 
     try {
       await axios.post('http://localhost:5000/upload', formData);
@@ -37,7 +40,7 @@ export default function PdfManager() {
       setFile(null);
       setBranch('');
       setSubject('');
-      // getFiles(); // Refresh list
+      setType('');
     } catch (err) {
       console.error(err);
       alert('Upload failed.');
@@ -51,15 +54,13 @@ export default function PdfManager() {
     setIsDragging(true);
   };
 
-  const handleDragLeave = () => {
-    setIsDragging(false);
-  };
+  const handleDragLeave = () => setIsDragging(false);
 
   const handleDrop = (e) => {
     e.preventDefault();
     setIsDragging(false);
 
-    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+    if (e.dataTransfer.files?.[0]) {
       const droppedFile = e.dataTransfer.files[0];
       if (droppedFile.type === 'application/pdf') {
         setFile(droppedFile);
@@ -76,7 +77,7 @@ export default function PdfManager() {
           <h2>Upload PDF Document</h2>
           <p>Share your documents with the department</p>
         </div>
-        
+
         <form className="upload-form" onSubmit={handleUpload}>
           <div 
             className={`drop-area ${isDragging ? 'dragging' : ''} ${file ? 'has-file' : ''}`}
@@ -141,24 +142,23 @@ export default function PdfManager() {
             </select>
           </div>
 
-            {/* <div className="form-group">
-            <label>Select Subject</label>
+          <div className="form-group">
+            <label>Select Type</label>
             <select 
-              value={subject} 
-              onChange={(e) => setSubject(e.target.value)}
+              value={type} 
+              onChange={(e) => setType(e.target.value)}
               className="branch-select"
             >
-              <option value="">Select Subject</option>
-              {allSubjects.map((sub, index) => (
-                <option key={index} value={sub}>{sub}</option>
-              ))}
+              <option value="">Select Type</option>
+              <option value="PYQ">PYQ (Previous Year Question)</option>
+              <option value="Syllabus">Syllabus</option>
             </select>
-          </div> */}
-          
+          </div>
+
           <button 
             type="submit" 
             className={`upload-btn ${isUploading ? 'uploading' : ''}`}
-            disabled={!file || !branch || !subject || isUploading}
+            disabled={!file || !branch || !subject || !type || isUploading}
           >
             {isUploading ? (
               <>

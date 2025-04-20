@@ -11,8 +11,11 @@ const pdfSchema = new mongoose.Schema({
   subject: {
     type: String,
     required: true
-    // Optionally, you can use enum here to validate allowed subjects:
-    // enum: ['Data Structures', 'Thermodynamics', 'Control Systems', ...]
+  },
+  type:{
+    type:String,
+    enum:["PYQ","Syllabus"],
+    required: true
   },
   uploadedAt: {
     type: Date,
