@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import axios from 'axios';
 import './ViewPDFs.css';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function ViewPDFs() {
   const [files, setFiles] = useState([]);
@@ -12,7 +13,7 @@ export default function ViewPDFs() {
   const getFiles = async () => {
     try {
       setLoading(true);
-      const response = await axios.get('http://localhost:5000/files');
+      const response = await axios.get(`${apiUrl}/files`);
       if (response.data && response.data.files && Array.isArray(response.data.files)) {
         setFiles(response.data.files);
       } else {

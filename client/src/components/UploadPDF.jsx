@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import axios from 'axios';
 import './Upload.css';
+const apiUrl = import.meta.env.VITE_API_URL;
 
 export default function PdfManager() {
   const [file, setFile] = useState(null);
@@ -35,7 +36,7 @@ export default function PdfManager() {
     formData.append('type', type); // ✅ Add type
 
     try {
-      await axios.post('http://localhost:5000/upload', formData);
+      await axios.post(`${apiUrl}/upload`, formData);
       alert('PDF uploaded!');
       setFile(null);
       setBranch('');
