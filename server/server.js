@@ -14,6 +14,10 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('Mongo error:', err));
 
 app.use('/', pdfRoutes);
+app.get('/',()=>{
+  res.json('Hello from server!');
+}
+)
 
 app.listen(process.env.PORT, () => {
   console.log(`Server running on http://localhost:${process.env.PORT}`);
