@@ -14,7 +14,7 @@ mongoose.connect(process.env.MONGO_URI)
   .catch(err => console.error('Mongo error:', err));
 
 app.use('/', pdfRoutes);
-app.get('/',()=>{
+app.get('/',(req,res)=>{
   res.json('Hello from server!');
 }
 )
