@@ -61,8 +61,8 @@ router.post("/upload", upload.single("pdf"), async (req, res) => {
       return new Promise((resolve, reject) => {
         const stream = cloudinary.uploader.upload_stream(
           { 
-            resource_type: "raw",
-            format: "pdf",
+            resource_type: "raw", // Changed from "images" to "raw" for PDF files
+            // format: "pdf",
             type: "upload",
             public_id: `pdf_${Date.now()}_${Math.random().toString(36).substring(7)}`
           },

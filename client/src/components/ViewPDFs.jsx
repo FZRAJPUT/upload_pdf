@@ -8,7 +8,6 @@ export default function ViewPDFs() {
   const [selectedBranch, setSelectedBranch] = useState('All');
   const [selectedSubject, setSelectedSubject] = useState('All');
   const [searchTerm, setSearchTerm] = useState('');
-  const [previewUrl, setPreviewUrl] = useState(null);
 
   const getFiles = async () => {
     try {
@@ -65,14 +64,6 @@ export default function ViewPDFs() {
     });
   };
 
-  const handlePreview = (url) => {
-    setPreviewUrl(url);
-  };
-
-  const closePreview = () => {
-    setPreviewUrl(null);
-  };
-
   const handleDownload = async (url, filename) => {
     try {
       const response = await fetch(url);
@@ -80,7 +71,7 @@ export default function ViewPDFs() {
       const downloadUrl = window.URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = downloadUrl;
-      link.download = `${filename}.pdf`;
+      link.download = `${filename}`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
