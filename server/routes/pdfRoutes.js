@@ -5,11 +5,6 @@ const ImageKit = require("imagekit");
 require("dotenv").config();
 
 const router = express.Router();
-console.log({
-  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
-  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
-  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
-})
 
 // Configure ImageKit
 const imagekit = new ImageKit({
@@ -39,7 +34,6 @@ router.post("/upload", upload.single("pdf"), async (req, res) => {
       return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    console.log(req.file.buffer)
 
     const uploadResponse = await imagekit.upload({
       file: req.file.buffer, // Buffer

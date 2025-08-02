@@ -10,8 +10,6 @@ app.use(cors());
 app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
-  .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('Mongo error:', err))
 
 app.use('/', pdfRoutes);
 app.get('/',(req,res)=>{
@@ -19,6 +17,4 @@ app.get('/',(req,res)=>{
 }
 )
 
-app.listen(process.env.PORT, () => {
-  console.log(`Server running on ${process.env.PORT}`);
-});
+app.listen(process.env.PORT)
