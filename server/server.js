@@ -11,7 +11,7 @@ app.use(express.json());
 
 mongoose.connect(process.env.MONGO_URI)
   .then(() => console.log('MongoDB connected'))
-  .catch(err => console.error('Mongo error:', err));
+  .catch(err => console.error('Mongo error:', err))
 
 app.use('/', pdfRoutes);
 app.get('/',(req,res)=>{

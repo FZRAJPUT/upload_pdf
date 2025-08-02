@@ -1,157 +1,96 @@
 const express = require("express");
-const cloudinary = require("cloudinary").v2;
 const multer = require("multer");
 const Pdf = require("../models/Pdf");
-const streamifier = require("streamifier");
+const ImageKit = require("imagekit");
 require("dotenv").config();
 
 const router = express.Router();
+console.log({
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
+})
 
-cloudinary.config({
-  cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-  api_key: process.env.CLOUDINARY_API_KEY,
-  api_secret: process.env.CLOUDINARY_API_SECRET,
+// Configure ImageKit
+const imagekit = new ImageKit({
+  publicKey: process.env.IMAGEKIT_PUBLIC_KEY,
+  privateKey: process.env.IMAGEKIT_PRIVATE_KEY,
+  urlEndpoint: process.env.IMAGEKIT_URL_ENDPOINT,
 });
 
-// Setup multer memory storage & file filter for PDFs only
+// Setup multer
 const upload = multer({
   storage: multer.memoryStorage(),
   limits: {
-    fileSize: 10 * 1024 * 1024, // 10MB limit
+    fileSize: 10 * 1024 * 1024,
   },
   fileFilter: (req, file, cb) => {
-    if (file.mimetype === "application/pdf") {
-      cb(null, true);
-    } else {
-      cb(new Error("Only PDF files are allowed!"), false);
-    }
+    if (file.mimetype === "application/pdf") cb(null, true);
+    else cb(new Error("Only PDF files are allowed!"), false);
   },
 });
 
-// Upload route
+// Upload endpoint
 router.post("/upload", upload.single("pdf"), async (req, res) => {
   try {
     const { branch, subject, type } = req.body;
 
-    // Enhanced validation
-    if (!req.file) {
-      return res.status(400).json({ 
-        success: false,
-        message: "PDF file is required." 
-      });
+    if (!req.file || !branch || !subject || !type) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
     }
 
-    if (!branch || !subject || !type) {
-      return res.status(400).json({ 
-        success: false,
-        message: "Branch, subject, and type are required." 
-      });
-    }
+    console.log(req.file.buffer)
 
-    // Validate input lengths
-    if (branch.length > 50 || subject.length > 100 || type.length > 50) {
-      return res.status(400).json({
-        success: false,
-        message: "Input fields exceed maximum length."
-      });
-    }
+    const uploadResponse = await imagekit.upload({
+      file: req.file.buffer, // Buffer
+      fileName: `pdf_${Date.now()}.pdf`,
+      folder: "/pdfs",
+    });
 
-    // Function to stream upload to Cloudinary
-    const streamUpload = (buffer) => {
-      return new Promise((resolve, reject) => {
-        const stream = cloudinary.uploader.upload_stream(
-          { 
-            resource_type: "raw", // Changed from "images" to "raw" for PDF files
-            // format: "pdf",
-            type: "upload",
-            public_id: `pdf_${Date.now()}_${Math.random().toString(36).substring(7)}`
-          },
-          (error, result) => {
-            if (error) {
-              reject(new Error(`Cloudinary upload failed: ${error.message}`));
-            } else if (result) {
-              resolve(result);
-            }
-          }
-        );
-        streamifier.createReadStream(buffer).pipe(stream);
-      });
-    };
-
-    // Upload PDF
-    const result = await streamUpload(req.file.buffer);
-
-    // Save PDF metadata to MongoDB
-    const pdf = new Pdf({
+    const newPdf = new Pdf({
       filename: req.file.originalname,
-      cloudinaryUrl: result.secure_url,
+      imagekitUrl: uploadResponse.url,
+      imagekitFileId: uploadResponse.fileId,
       branch,
       subject,
       type,
     });
 
-    await pdf.save();
+    const savedPdf = await newPdf.save();
 
-    res.json({ 
-      success: true,
-      message: "PDF uploaded successfully!", 
-      pdf 
-    });
+    res.json({ success: true, message: "Upload successful", pdf: savedPdf });
   } catch (err) {
-    console.error("Upload error:", err);
-    res.status(500).json({ 
-      success: false,
-      message: "Upload failed", 
-      error: err.message 
-    });
+    console.error("Upload error:", err.message);
+    res.status(500).json({ success: false, message: "Upload failed", error: err.message });
   }
 });
 
+// Get files (filter by branch)
 router.get("/files", async (req, res) => {
-  const { branch } = req.query;
   try {
+    const { branch } = req.query;
     const filter = branch ? { branch } : {};
     const files = await Pdf.find(filter).sort({ uploadedAt: -1 });
-    res.json({ 
-      success: true,
-      files
-    });
+    res.json({ success: true, files });
   } catch (err) {
-    res.status(500).json({ 
-      success: false,
-      message: "Error fetching files", 
-      error: err.message 
-    });
+    res.status(500).json({ success: false, message: "Fetch failed", error: err.message });
   }
 });
 
-// DELETE PDF by ID
+// Delete file
 router.delete("/files/:id", async (req, res) => {
   try {
     const file = await Pdf.findById(req.params.id);
-    if (!file) {
-      return res.status(404).json({ 
-        success: false,
-        message: "File not found" 
-      });
+    if (!file) return res.status(404).json({ success: false, message: "File not found" });
+
+    if (file.imagekitFileId) {
+      await imagekit.deleteFile(file.imagekitFileId);
     }
 
-    // Delete from Cloudinary using public_id
-    const publicId = file.cloudinaryUrl.split("/").pop().split(".")[0];
-    await cloudinary.uploader.destroy(publicId, { resource_type: "raw" });
     await file.deleteOne();
-    
-    res.json({ 
-      success: true,
-      message: "File deleted successfully" 
-    });
-  } catch (error) {
-    console.error("Delete error:", error);
-    res.status(500).json({ 
-      success: false,
-      message: "Deletion failed", 
-      error: error.message 
-    });
+    res.json({ success: true, message: "File deleted" });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Deletion failed", error: err.message });
   }
 });
 
