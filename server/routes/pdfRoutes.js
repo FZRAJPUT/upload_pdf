@@ -43,7 +43,7 @@ router.post("/upload", upload.single("pdf"), async (req, res) => {
 
     const newPdf = new Pdf({
       filename: req.file.originalname,
-      imagekitUrl: uploadResponse.url,
+      url: uploadResponse.url,
       imagekitFileId: uploadResponse.fileId,
       branch,
       subject,
