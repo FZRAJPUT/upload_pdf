@@ -404,3 +404,11 @@
   .close-modal:hover {
     color: #333;
   }
+
+  .pagination-button{
+    padding: 5px 10px;
+    cursor: pointer;
+    background: #c9c9c983;
+    margin: 0 5px;
+    color: #fff;
+  }

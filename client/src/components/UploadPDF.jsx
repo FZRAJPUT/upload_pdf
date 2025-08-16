@@ -11,6 +11,8 @@ export default function PdfManager() {
   const [type, setType] = useState('');
   const [isDragging, setIsDragging] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
+  const [subjectSearch, setSubjectSearch] = useState(''); // 🔍 search state
+  const [showDropdown, setShowDropdown] = useState(false);
 
   const allSubjects = [
     'Data Structures', 'Algorithms', 'Database Management Systems',
@@ -40,15 +42,13 @@ export default function PdfManager() {
     setIsUploading(true);
 
     try {
-      const response = await axios.post(`${apiUrl}/upload`, formData);
+      await axios.post(`${apiUrl}/upload`, formData);
       alert('PDF uploaded successfully!');
-      // Optional: Display response.data.pdf info if needed
-
-      // Reset state
       setFile(null);
       setBranch('');
       setSubject('');
       setType('');
+      setSubjectSearch('');
     } catch (error) {
       console.error('Upload error:', error);
       alert('Failed to upload PDF. Please try again.');
@@ -61,8 +61,6 @@ export default function PdfManager() {
     e.preventDefault();
     setIsDragging(true);
   };
-
-  const handleDragLeave = () => setIsDragging(false);
 
   const handleDrop = (e) => {
     e.preventDefault();
@@ -78,6 +76,11 @@ export default function PdfManager() {
     }
   };
 
+  // 🔍 Filter subjects based on search
+  const filteredSubjects = allSubjects.filter((sub) =>
+    sub.toLowerCase().includes(subjectSearch.toLowerCase())
+  );
+
   return (
     <div className="pdf-manager-container">
       <div className="card">
@@ -87,10 +90,11 @@ export default function PdfManager() {
         </div>
 
         <form className="upload-form" onSubmit={handleUpload}>
+          {/* File Upload */}
           <div
             className={`drop-area ${isDragging ? 'dragging' : ''} ${file ? 'has-file' : ''}`}
             onDragOver={handleDragOver}
-            onDragLeave={handleDragLeave}
+            onDragLeave={() => setIsDragging(false)}
             onDrop={handleDrop}
           >
             <p>{file ? file.name : 'Drag & Drop your PDF here'}</p>
@@ -130,6 +134,7 @@ export default function PdfManager() {
             )}
           </div>
 
+          {/* Branch */}
           <div className="form-group">
             <label>Select Department</label>
             <select
@@ -145,22 +150,43 @@ export default function PdfManager() {
             </select>
           </div>
 
-          <div className="form-group">
+          {/* Subject with search */}
+          <div className="form-group subject-search">
             <label>Select Subject</label>
-            <select
-              value={subject}
-              onChange={(e) => setSubject(e.target.value)}
-              className="branch-select"
-            >
-              <option value="">Select Subject</option>
-              {allSubjects.map((sub, idx) => (
-                <option key={idx} value={sub}>
-                  {sub}
-                </option>
-              ))}
-            </select>
+            <input
+              type="text"
+              value={subjectSearch}
+              onChange={(e) => {
+                setSubjectSearch(e.target.value);
+                setShowDropdown(true);
+              }}
+              onFocus={() => setShowDropdown(true)}
+              placeholder="Search subject..."
+              className="subject-input"
+            />
+            {showDropdown && (
+              <ul className="subject-dropdown">
+                {filteredSubjects.length > 0 ? (
+                  filteredSubjects.map((sub, idx) => (
+                    <li
+                      key={idx}
+                      onClick={() => {
+                        setSubject(sub);
+                        setSubjectSearch(sub);
+                        setShowDropdown(false);
+                      }}
+                    >
+                      {sub}
+                    </li>
+                  ))
+                ) : (
+                  <li className="no-results">No subjects found</li>
+                )}
+              </ul>
+            )}
           </div>
 
+          {/* Type */}
           <div className="form-group">
             <label>Select Type</label>
             <select
@@ -174,6 +200,7 @@ export default function PdfManager() {
             </select>
           </div>
 
+          {/* Upload button */}
           <button
             type="submit"
             className={`upload-btn ${isUploading ? 'uploading' : ''}`}
