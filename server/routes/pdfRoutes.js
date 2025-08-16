@@ -74,19 +74,24 @@ router.post("/upload", upload.single("pdf"), async (req, res) => {
 router.get("/files", async (req, res) => {
   try {
     const { branch, page = 1, limit = 10 } = req.query;
+
+    // Build filter
     const filter = branch ? { branch } : {};
 
+    // Fetch files with pagination + projection
     const files = await Pdf.find(
       filter,
-      "subject branch type url uploadedAt" // projection (send only required fields)
+      "subject branch type url uploadedAt" // projection (only required fields)
     )
-      .sort({ uploadedAt: -1 })
-      .skip((page - 1) * limit)
-      .limit(Number(limit));
+      .sort({ uploadedAt: -1 }) // latest first
+      .skip((Number(page) - 1) * Number(limit)) // pagination skip
+      .limit(Number(limit)); // pagination limit
 
+    // Count total documents
     const total = await Pdf.countDocuments(filter);
 
-    res.json({
+    // Return response
+    res.status(200).json({
       success: true,
       total,
       page: Number(page),
@@ -94,6 +99,7 @@ router.get("/files", async (req, res) => {
       files,
     });
   } catch (err) {
+    console.error("Error fetching files:", err);
     res.status(500).json({
       success: false,
       message: "Fetch failed",
