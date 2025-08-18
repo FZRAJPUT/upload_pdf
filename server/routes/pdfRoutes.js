@@ -48,7 +48,7 @@ router.post("/upload", upload.single("pdf"), async (req, res) => {
       filename: req.file.originalname,
       url: uploadResponse.url,
       imagekitFileId: uploadResponse.fileId,
-      branch,
+      branch:branch.toLowerCase(),
       subject,
       type,
     });
