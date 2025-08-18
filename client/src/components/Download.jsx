@@ -12,7 +12,7 @@ const Download = () => {
 
         <div className="flex flex-col md:flex-row justify-center items-center gap-6 mb-10">
           <a 
-            href={'../assets/exam.apk'} // Direct link to the APK file in the public directory
+            href={'client\src\assets\exam.apk'} // Direct link to the APK file in the public directory
             download="ExamVault-App.apk" // Suggests a filename for the download
             className="bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-lg w-full md:w-auto"
           >
