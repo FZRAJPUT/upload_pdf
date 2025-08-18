@@ -30,6 +30,7 @@ export default function ViewPDFs() {
       }
 
       const response = await axios.get(`${apiUrl}/files`, { params });
+      console.log(response.data.files)
 
       if (response.data && response.data.files && Array.isArray(response.data.files)) {
         setFiles(response.data.files);

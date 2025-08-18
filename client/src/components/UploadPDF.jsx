@@ -42,7 +42,8 @@ export default function PdfManager() {
     setIsUploading(true);
 
     try {
-      await axios.post(`${apiUrl}/upload`, formData);
+      let res = await axios.post(`${apiUrl}/upload`, formData);
+      console.log(res.data.pdf)
       alert('PDF uploaded successfully!');
       setFile(null);
       setBranch('');

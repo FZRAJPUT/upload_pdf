@@ -83,9 +83,11 @@ router.get("/files", async (req, res) => {
       filter,
       "subject branch type url uploadedAt" // projection (only required fields)
     )
-      .sort({ uploadedAt: -1 }) // latest first
+      // .sort({ uploadedAt: -1 }) // latest first
       .skip((Number(page) - 1) * Number(limit)) // pagination skip
       .limit(Number(limit)); // pagination limit
+
+      console.log(files)
 
     // Count total documents
     const total = await Pdf.countDocuments(filter);
