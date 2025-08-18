@@ -78,26 +78,32 @@ router.get("/files", async (req, res) => {
     // Build filter
     const filter = branch ? { branch } : {};
 
-    // Fetch files with pagination + projection
+    // Convert page and limit to numbers
+    const pageNumber = parseInt(page);
+    const limitNumber = parseInt(limit);
+
+    // Calculate the number of documents to skip for pagination
+    const skip = (pageNumber - 1) * limitNumber;
+
+    // Fetch files with pagination, applying skip() and limit()
     const files = await Pdf.find(
       filter,
-      "subject branch type url uploadedAt" // projection (only required fields)
+      "subject branch type url uploadedAt" // projection
     )
-      // .sort({ uploadedAt: -1 }) // latest first
-      .skip((Number(page) - 1) * Number(limit)) // pagination skip
-      .limit(Number(limit)); // pagination limit
+    .skip(skip)
+    .limit(limitNumber);
 
-      console.log(files)
+    console.log(files);
 
-    // Count total documents
+    // Count total documents for the filter
     const total = await Pdf.countDocuments(filter);
 
     // Return response
     res.status(200).json({
       success: true,
       total,
-      page: Number(page),
-      limit: Number(limit),
+      page: pageNumber,
+      limit: limitNumber,
       files,
     });
   } catch (err) {

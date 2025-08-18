@@ -189,7 +189,7 @@ export default function ViewPDFs() {
 
               <div className="pdf-card-footer">
                 <button
-                  onClick={() => handleDownload(file.url, file.filename)}
+                  onClick={() => handleDownload(files.url, files.filename)}
                   className="download-button"
                 >
                   Download
