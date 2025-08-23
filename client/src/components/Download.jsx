@@ -1,4 +1,6 @@
 import React from 'react';
+import QR from '../assets/apk.png'
+
 const Download = () => {
   return (
     <section id="download" className="py-20 bg-white">
@@ -12,7 +14,8 @@ const Download = () => {
 
         <div className="flex flex-col md:flex-row justify-center items-center gap-6 mb-10">
           <a 
-            href={'/apk/exam.apk'} // Direct link to the APK file in the public directory
+          target='_blank'
+            href={'https://drive.google.com/file/d/1BYvuOMCvk9XhMAYekzXyoRbqhcd02V_r/view'} // Direct link to the APK file in the public directory
             download="ExamVault-App.apk" // Suggests a filename for the download
             className="bg-blue-600 text-white px-8 py-3 rounded-full text-lg font-semibold hover:bg-blue-700 transition duration-300 shadow-lg w-full md:w-auto"
           >
@@ -23,8 +26,7 @@ const Download = () => {
         <div className="flex flex-col md:flex-row justify-center items-center gap-10">
           <div className="bg-gray-100 p-6 rounded-lg shadow-md text-center">
             <h3 className="text-xl font-semibold text-gray-700 mb-4">Scan to Download (Android)</h3>
-            {/* You can add a QR code image here */}
-            
+            <img width={300} src={QR} alt="" />            
           </div>
         </div>
       </div>

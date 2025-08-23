@@ -9,6 +9,7 @@ import { Route, Routes } from 'react-router-dom';
 import PdfManager from './components/UploadPDF';
 import ViewPDFs from './components/ViewPDFs';
 import ProtectedRoute from './components/ProtectedRoute'; // Import the new component
+import Upload from './components/Upload';
 
 function App() {
   const ADMIN_PASSWORD = import.meta.env.VITE_API_ADMIN_KEY
@@ -33,6 +34,8 @@ function App() {
             </div>
           </ProtectedRoute>
         } />
+
+      <Route path='/upload' element={<Upload />} />
       </Routes>
       <Footer />
     </div>
